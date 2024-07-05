@@ -42,17 +42,11 @@ Machine learning pipelines, like any code, are susceptible to errors. One such e
 
 <img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/3kindOfDuplicates.png">
 
-*In the context of image data, duplicates can be categorized into three types:*
+In the context of image data, the paper "Do we train on test data? Purging CIFAR of near-duplicates" [X] describes three types of duplication:
 
-- <span style="color:#80AF81">Exact Duplicate</span> Almost all pixels in the two images are
-approximately identical.
-- <span style="color:#80AF81">Near-Duplicate</span> The content of the images is exactly the
-same, i.e., both originated from the same camera shot.
-However, different post-processing might have been
-applied to this original scene, e.g., color shifts, translations, scaling etc.
-- <span style="color:#80AF81">Very Similar</span> The contents of the two images are different,
-but highly similar, so that the difference can only be
-spotted at the second glance.
+> - **Exact Duplicate** Almost all pixels in the two images are approximately identical.
+> - **Near-Duplicate** The content of the images is exactly the same, i.e., both originated from the same camera shot. However, different post-processing might have been applied to this original scene, e.g., color shifts, translations, scaling etc.
+> - **Very Similar** The contents of the two images are different, but highly similar, so that the difference can only be spotted at the second glance.
 
 ---
 **How Duplicate Samples Might End Up in Data?**
