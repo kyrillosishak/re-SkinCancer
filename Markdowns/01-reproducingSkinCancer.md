@@ -12,6 +12,8 @@ output:
     toc: yes
     toc_depth: 3
 ---
+
+
 :::{.cell .markdown}
 # Skin Cancer Classification using Inception Network and Transfer Learning
 
@@ -81,6 +83,7 @@ batch size of 10. A maximum patience of 15 epochs was set to the early stopping 
 ### 1.1 Downloading the data
 
 To download the data you should :
+
 1. Signup https://dataverse.harvard.edu/
 2. Create API token from [this](https://dataverse.harvard.edu/dataverseuser.xhtml?selectTab=apiTokenTab).
 
@@ -179,8 +182,10 @@ import PIL.Image
 import numpy as np
 from tqdm import tqdm
 import torch.nn as nn
+import seaborn as sns
 import torch.optim as optim
 from torchvision import transforms
+from sklearn.metrics import confusion_matrix
 from torch.utils.data import DataLoader, Dataset
 import matplotlib.pyplot as plt
 ```
@@ -334,7 +339,7 @@ def augment_and_split_data(image_list, label_list, train_transform, val_transfor
             augmented_labels.append(label)
             if len(augmented_images) >= target_size:
                 break
-    train_dataset = SkinLesionDataset(train_images, train_labels, transform=train_transform)
+    train_dataset = SkinLesionDataset(augmented_images, augmented_labels, transform=train_transform)
     val_dataset = SkinLesionDataset(val_images, val_labels, transform=val_transform)
 
     return train_dataset, val_dataset
@@ -411,6 +416,7 @@ def process_train_val_loader(target_size, train_transform, val_transform):
 
 
 **Transfer Learning :**
+
 * we'll leverage transfer learning to create a custom image classifier. We'll be using the Inception ResNet V2 model pre-trained on ImageNet, a massive dataset with thousands of image classes. Transfer learning allows us to reuse the knowledge this model has learned from ImageNet, even if our own dataset has different categories.
 * We'll use the timm library from Hugging Face to load the Inception ResNet V2 model pre-trained on ImageNet. This pre-trained model has already learned effective ways to extract features from images.
 * We'll remove the final classification layer of the pre-trained model and add our own custom classifier.
@@ -426,7 +432,14 @@ def process_train_val_loader(target_size, train_transform, val_transform):
 :::{.cell .code}
 ```python
 # if you are in colab install timm 
-!pip install timm
+!pip -q install timm
+```
+:::
+
+:::{.cell .code}
+```python
+# if you are in Kaggle notebook install torchsummary 
+!pip -q install torchsummary
 ```
 :::
 
@@ -435,6 +448,8 @@ def process_train_val_loader(target_size, train_transform, val_transform):
 from torchsummary import summary
 from timm import create_model
 model = create_model('inception_resnet_v2', pretrained=True,num_classes=7)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 # Inspect model parameters and layers
 summary(model, input_size=(3, 299, 299))
 ```
@@ -506,12 +521,16 @@ class ModifiedInceptionResNetV2(nn.Module):
 :::{.cell .code}
 ```python
 modified_model = ModifiedInceptionResNetV2(model, num_classes=7)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+modified_model.to(device)
 # Inspect the modified model
 summary(modified_model, input_size=(3, 299, 299))
 ```
+:::
+
 :::{.cell .markdown}
 
-## **3. Training and validation**
+## **3. Training**
 
 *The problem we counter while reproducing the paper that isn't specified how much they augmented the Train data.*
 
@@ -644,7 +663,7 @@ def train(num_epochs, train_loader, val_loader, model, optimizer, criterion, pat
 
 :::{.cell .code}
 ```python
-number = 300
+number = 500
 num_epochs = 100
 patience = 15
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -652,5 +671,86 @@ train_dataset, val_dataset, train_loader, val_loader = process_train_val_loader(
 print("Size of trainset : " + str(len(train_dataset.image_list)))
 print("Size of validationset : " + str(len(val_dataset.image_list)))
 trained_model = train(num_epochs, train_loader, val_loader, modified_model, optimizer, criterion, patience, early_stopping=True)
+```
+:::
+
+:::{.cell .markdown}
+## **4. Validation**
+:::
+
+:::{.cell .code}
+```python
+def get_predictions_and_labels(model, data_loader, device):
+    # Set the model to evaluation mode
+    model.eval()
+    all_preds = []
+    all_labels = []
+    
+    # Disable gradient calculation for inference
+    with torch.no_grad():
+        for images, labels in data_loader:
+            # Move images and labels to the specified device
+            images, labels = images.to(device), labels.to(device)
+            
+            # Get model outputs
+            outputs = model(images)
+            
+            # Get the index of the highest probability class
+            _, preds = torch.max(outputs, 1)
+            
+            # Store predictions and labels
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+    
+    # Convert lists to numpy arrays
+    return np.array(all_preds), np.array(all_labels)
+```
+:::
+
+:::{.cell .code}
+```python
+# Get predictions and labels for the validation dataset
+val_preds, val_labels = get_predictions_and_labels(trained_model, val_loader, device)
+
+# Create a mapping from class names to indices
+label_map = {class_name: idx for idx, class_name in enumerate(class_files.keys())}
+
+# Get class names in the correct order
+class_names = [class_name for class_name in class_files.keys()]
+```
+:::
+
+:::{.cell .code}
+```python
+# Compute and plot the confusion matrix
+def plot_confusion_matrix(cm, class_names):
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title('Confusion Matrix')
+    plt.show()
+
+# Compute confusion matrix
+cm = confusion_matrix(val_labels, val_preds)
+
+# Plot confusion matrix
+plot_confusion_matrix(cm, class_names)
+```
+:::
+
+:::{.cell .markdown}
+
+_If you want to download the model parameters and the train/validation dataset we used, you can download them by running the following commands:_
+```python
+!wget https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp1/3500_81_33.pt
+!wget https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp1/train.pt
+!wget https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp1/val.pt
+
+import torch
+
+model = torch.load("3500_81_33.pt")
+train_dataset = torch.load("train.pt")
+val_dataset = torch.load("val.pt")
 ```
 :::
