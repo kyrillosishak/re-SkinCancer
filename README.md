@@ -1,2 +1,2 @@
-# re-covid
-About [Re] Towards an Effective and Efficient Deep Learning Model for COVID-19 Patterns Detection in X-ray Images
+# re-SkinCancer
+About [Re] Skin Cancer Classification with Transfer Learning
