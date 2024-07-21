@@ -775,6 +775,28 @@ plot_confusion_matrix(cm, class_names)
   </tr>
   <tr>
     <td>
+        Training size
+    </td>
+    <td>
+        Unknown
+    </td>
+    <td>
+        7000 samples
+    </td>
+  </tr>
+  <tr>
+    <td>
+        Validation size
+    </td>
+    <td>
+        478 samples
+    </td>
+    <td>
+        478 samples
+    </td>
+  </tr>
+  <tr>
+    <td>
         Confusion martix
     </td>
     <td>
