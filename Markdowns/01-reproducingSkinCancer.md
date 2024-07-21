@@ -1,5 +1,5 @@
 ---
-title: "ToyExample"
+title: "Re-SkinCancerClassification"
 author: "Kyrillos Ishak"
 date: "`r Sys.Date()`"
 output: 
@@ -146,7 +146,10 @@ print("The number of images in class nv    =",len(class_files['nv']))
 As we can see here, the data is heavily unbalanced. To achieve a balanced dataset, each class should have an average of 
 10015/7 ≈ 1430 images. However, 6 out of the 7 classes fall below this number.
 
+Additionally, the authors made a mistake by not thoroughly exploring the data to identify that it contains duplicates. This oversight can lead to data leakage, negatively impacting model performance and evaluation. In the next notebook, we will identify this problem and take steps to address it.
+
 :::
+
 
 :::{.cell .code}
 ```python
@@ -740,17 +743,53 @@ plot_confusion_matrix(cm, class_names)
 :::
 
 :::{.cell .markdown}
+## **5. Comparing our results to paper's results**
 
-_If you want to download the model parameters and the train/validation dataset we used, you can download them by running the following commands:_
-```python
-!wget https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp1/3500_81_33.pt
-!wget https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp1/train.pt
-!wget https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp1/val.pt
+<table>
+  <tr>
+    <td></td>
+    <td>Original results</td>
+    <td>Our results</td>
+  </tr>
+  <tr>
+    <td>
+        Accuracy
+    </td>
+    <td>
+        78.9%
+   </td>
+    <td>
+        78.6%
+    </td>
+  </tr> 
+  <tr>
+    <td>
+        Number of epochs
+    </td>
+    <td>
+        Approx. 42 epochs
+    </td>
+    <td>
+        40 epochs
+    </td>
+  </tr>
+  <tr>
+    <td>
+        Confusion martix
+    </td>
+    <td>
+      <img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/paper's_results.jpeg" />
+    </td>
+    <td>
+        <img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/Our_results.jpeg" />
+    </td>
+  </tr>
+  
+</table>
 
-import torch
+:::
 
-model = torch.load("3500_81_33.pt")
-train_dataset = torch.load("train.pt")
-val_dataset = torch.load("val.pt")
-```
+
+:::{.cell .markdown}
+*for this experiment you can download the trained model parameters and the data used from https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp3/*
 :::
