@@ -67,27 +67,21 @@ _In many situations, the distinction between `near-duplicate` and `very similar`
 -   *Scenario 1* : When training an email classifier for an academic department. In this scenario, data is collected from all students within the department. Since these students are part of the same academic environment, they receive a significant number of common emails, such as departmental announcements, course notifications, and event reminders.
 -   *Scenario 2* : When training a chatbot for customer support, data is often gathered from various interactions with customers. Many customers might ask similar questions or encounter the same issues, resulting in repeated dialogue patterns within the dataset.
 -   *Scenario 3* : When training a model to classify news articles, data might be sourced from various news outlets. Major news stories are often covered by multiple sources, and syndicated articles or press releases can appear across different outlets, leading to duplicate samples.
--    *Scenario 4* : Speech recognition datasets often include recordings of common phrases or sentences. If data is collected from multiple participants who are asked to repeat specific phrases, duplicates are inevitable.
+-   *Scenario 4* : Speech recognition datasets often include recordings of common phrases or sentences. If data is collected from multiple participants who are asked to repeat specific phrases, duplicates are inevitable.
+-   *Scenario 5* : Frankenstein datasets (A "Frankenstein dataset" refers to a dataset composed of multiple other public datasets. Some scientists intentionally create Frankenstein datasets to augment training data, as it enhances model robustness by exposing it to diverse examples from multiple sources. This approach aims to mitigate bias and improve generalization, especially when individual datasets may be limited in scope or quality. However, unintentionally, duplicates can arise within these datasets when one dataset includes information that duplicates or overlaps with data already included from another source.)
 
+      <img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/covidx.png" />
+        
+      *This image from survey [3].*	  
+      
+      *For example, consider the COVIDx dataset, which incorporates three main datasets: COHEN, RSNA, and CHOWDHURY. CHOWDHURY itself includes the COHEN dataset, this overlap might cause duplicates within the Frankenstein dataset [3].*
+				  
 :::
+
 
 :::{.cell .markdown}
 
-**2. Frankenstein datasets** :
-    
-<img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/covidx.png" />
-
-*This image from survey [3].*
-    
-A "Frankenstein dataset" refers to a dataset composed of multiple other public datasets. Some scientists intentionally create Frankenstein datasets to augment training data, as it enhances model robustness by exposing it to diverse examples from multiple sources. This approach aims to mitigate bias and improve generalization, especially when individual datasets may be limited in scope or quality. However, unintentionally, duplicates can arise within these datasets when one dataset includes information that duplicates or overlaps with data already included from another source.
-    
-*For example, consider the COVIDx dataset, which incorporates three main datasets: COHEN, RSNA, and CHOWDHURY. CHOWDHURY itself includes the COHEN dataset, this overlap might cause duplicates within the Frankenstein dataset [3].*
-
-:::
-
-:::{.cell .markdown}
-
-**3. Using LLM to generate data for training** :
+**2. Using LLM to generate data for training** :
 
 Duplicates can arise in datasets created using LLMs due to several factors. First, limited prompt variety can lead the model to generate similar or identical outputs, especially if the same prompt is used repeatedly. Additionally, the training data of the LLM may contain repetitive patterns, causing the model to reproduce these during generation. Randomness in the text generation process, particularly with low diversity settings, can also result in repetitive sequences. Furthermore, using in-domain unlabeled examples or few-shot examples that are not diverse enough may limit the variability of the generated samples. To mitigate duplicates, it is essential to employ strategies such as diverse prompt design, careful sampling, and post-generation deduplication techniques.
 
@@ -103,26 +97,13 @@ Duplicates can arise in datasets created using LLMs due to several factors. Firs
 ```
 :::
 
-:::{.cell .markdown}
-
-
-To use models from Hugging Face:
-
-1. Create an account by signing up [here](https://huggingface.co/join). 
-2. Create an access token using [this](https://huggingface.co/docs/hub/en/security-tokens) guide.
-3. After creating the account, visit the [Mistral-7B-Instruct-v0.1](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1) model page and grant access to the model.
-
-:::
 
 :::{.cell .code}
 ```python
-from huggingface_hub import notebook_login
-notebook_login()
-```
-:::
-
-:::{.cell .code}
-```python
+import torch
+import textwrap
+import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM
 def wrap_text(text, width=90): #preserve_newlines
     # Split the input text into lines based on newline characters
     lines = text.split('\n')
@@ -153,14 +134,9 @@ def generate(input_text, system_prompt="",max_length=512):
 
 :::{.cell .code}
 ```python
-import torch
-import textwrap
-import transformers
-from transformers import AutoTokenizer, AutoModelForCausalLM
-
 torch.set_default_device('cuda')
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.1", device_map="auto", load_in_4bit=True)
-tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.1", torch_dtype="auto")
+model = AutoModelForCausalLM.from_pretrained("unsloth/mistral-7b-instruct-v0.3-bnb-4bit", device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained("unsloth/mistral-7b-instruct-v0.3-bnb-4bit", torch_dtype="auto")
 ```
 :::
 
@@ -172,7 +148,7 @@ generate('Generate a sentences expressing positive sentiment:', max_length=512)
 
 :::{.cell .markdown} 
 
-**4. Data augmentation or oversampling before split** :
+**3. Data augmentation or oversampling before split** :
 
    Data augmentation involves creating modified versions of existing data to increase the dataset size and diversity, while oversampling involves replicating data points to balance class distributions. If these techniques are applied before the dataset is split, the augmented or replicated samples can be distributed across the different splits. As a result, the same data point, or its augmented version, might appear in both the training and validation or test sets. This overlap can cause the model to have an unfair advantage, as it may encounter the same or very similar data during both training and evaluation phases. This can inflate performance metrics, giving a false sense of the model's generalization capabilities.
     
@@ -188,6 +164,13 @@ import torchvision.transforms as transforms
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
+import random
+
+# Set random seed for reproducibility
+seed = 42
+torch.manual_seed(seed)
+np.random.seed(seed)
+random.seed(seed)
 
 # Load CIFAR-10 dataset
 transform = transforms.Compose([
@@ -217,7 +200,7 @@ augmented_images = [(augment(img),idx) for idx, img in enumerate(images_pil[:num
 normal_images =  [(transforms.ToTensor()(img),idx) for idx, img in enumerate(images_pil)]
 # Store indices with images
 augmented_images_with_indices =  augmented_images + normal_images
-train_images_with_indices, test_images_with_indices = train_test_split(augmented_images_with_indices, test_size=0.2, random_state=42)
+train_images_with_indices, test_images_with_indices = train_test_split(augmented_images_with_indices, test_size=0.2, random_state=seed)
 
 # Find duplicates between train and test sets
 train_indices = set(idx for _, idx in train_images_with_indices)
@@ -288,6 +271,7 @@ def generate_data(n_samples=100, n_features=1, noise_level=0.2):
 n_samples_initial = 100
 n_samples_total = 150
 noise_level = 0.3  # Change this value to experiment with different noise levels
+np.random.seed(42)
 
 # Generate initial data
 X, y, coef = generate_data(n_samples=n_samples_initial, noise_level=noise_level)
@@ -439,7 +423,6 @@ print(f"Correct Implementation Accuracy: {accuracy_correct:.4f}")
 
 :::{.cell .markdown}
 
-
 Identify the data leakage that caused by duplicates
 ``` python
 import pandas as pd
@@ -449,8 +432,8 @@ from sklearn . model_selection import LinearRegression ,Ridge
 X_0 , y = load_data ()
 
 select = SelectPercentile( chi2 , percentile =50)
-select.fit (X_0)
-X = select.transform ( X_0 )
+select.fit(X_0)
+X = select.transform( X_0 )
 
 X_train , y_train , X_test , y_test = train_test_split (X ,y)
 lr = LinearRegression ()
@@ -462,7 +445,36 @@ ridge.fit (X , y)
 ridge_score = ridge.score (X_test , y_test)
 final_model = lr if lr_score > ridge_score else ridge
 ```
+:::
 
+:::{.cell .markdown}
+### Exercise
+
+Correct the data leakage that caused by duplicates
+:::
+
+:::{.cell .code}
+``` python
+import pandas as pd
+from sklearn . feature_selection import SelectPercentile, chi2
+from sklearn . model_selection import LinearRegression ,Ridge
+
+X_0 , y = load_data ()
+
+## Write your code here ##
+
+# Use the same approach as above
+
+#########################
+lr = LinearRegression ()
+lr.fit ( X_train , y_train )
+lr_score = lr.score ( X_test , y_test )
+
+ridge = Ridge ()
+ridge.fit (X , y)
+ridge_score = ridge.score (X_test , y_test)
+final_model = lr if lr_score > ridge_score else ridge
+```
 :::
 
 :::{.cell .markdown}
@@ -974,7 +986,8 @@ In this section, we will discuss how to find duplicates in a dataset based on th
 ### **2. How to mitigate duplicates in Texts:**
 
 *Duplicate detection in text data involves identifying identical or nearly identical pieces of text. In the context of image data, the paper “Deduplicating Training Data Makes Language Models Better" [4] describes two ways of detecting duplicates:*
-    <img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/textduplicates.png">
+  
+  <img src="https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/textduplicates.png">
 
 * **Exact Substring Duplication** : Due to the diversity of human language, it is uncommon for the same idea to be expressed identically in multiple documents unless one is derived from the other or both quote a shared source. When two text examples share a sufficiently long substring. Based on statistical analyses, a minimum matching substring length of 50 tokens is selected.
   * **Suffix Arrays**: Exact substring matching is computationally prohibitive with naive (quadratic) all-pair matching. To improve efficiency, all examples in the dataset are concatenated into a giant sequence, from which a Suffix Array is constructed. A suffix array is a representation of a suffix tree that can be constructed in linear time and allows efficient computation of many substring queries. 
