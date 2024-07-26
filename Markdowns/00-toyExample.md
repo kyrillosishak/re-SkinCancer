@@ -708,7 +708,7 @@ for x in l:
 
 :::{.cell .markdown}
 
-Then we will start to train a ResNet CNN model using pyTorch on the original CIFAR dataset and asses its performance on the test split of the original dataset and the ciFAIR dataset test splits
+Then we will start to train a ResNet CNN model using pyTorch on the original CIFAR dataset and assess its performance on the test split of the original dataset and the ciFAIR dataset test splits
 
 Note : both CIFAR-100 and ciFAIR **have the same** train data split the only difference is in the test set
 
