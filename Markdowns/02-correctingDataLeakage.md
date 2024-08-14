@@ -295,7 +295,6 @@ val_transform = transforms.Compose([
 :::{.cell .code}
 ```python
 meta_data = pd.read_csv('HAM10000_metadata')
-duplicates = pd.read_csv("duplicates_1000.csv")
 ```
 :::
 
