@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-# Find all markdown files in the Markdown directory and store them in an array
-SOURCES=($(find Markdown -type f -name "*.md"))
+# Find all markdown files in the markdowns directory and store them in an array
+SOURCES=($(find markdowns -type f -name "*.md"))
 
 # Create the notebooks directory if it doesn't exist
 mkdir -p notebooks
