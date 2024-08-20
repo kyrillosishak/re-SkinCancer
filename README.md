@@ -20,3 +20,6 @@ Finally, we will repeat the original work, but with a correct evaluation - makin
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kyrillosishak/re-SkinCancer/blob/main/notebooks/correctingSkinCancer.ipynb) [Repeating "Skin Cancer Classification Using Inception Network and Transfer Learning" without data leakage](https://github.com/kyrillosishak/re-SkinCancer/blob/main/notebooks/correctingSkinCancer.ipynb)
 
+---
+
+This resource may be executed on Google Colab or on [Chameleon](https://chameleoncloud.org/). The buttons above will open the materials on Colab. If you are using Chameleon, start by running the [reserve.ipynb](https://github.com/kyrillosishak/re-SkinCancer/blob/main/reserve.ipynb) notebook inside the Chameleon Jupyter environment.
