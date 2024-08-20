@@ -23,3 +23,11 @@ Finally, we will repeat the original work, but with a correct evaluation - makin
 ---
 
 This resource may be executed on Google Colab or on [Chameleon](https://chameleoncloud.org/). The buttons above will open the materials on Colab. If you are using Chameleon, start by running the [reserve.ipynb](https://github.com/kyrillosishak/re-SkinCancer/blob/main/reserve.ipynb) notebook inside the Chameleon Jupyter environment.
+
+
+---
+
+This project was part of the 2024 Summer of Reproducibility organized by the [UC Santa Cruz Open Source Program Office](https://ucsc-ospo.github.io/).
+
+* Contributor: [Kyrillos Ishak](https://github.com/kyrillosishak)
+* Mentors: [Fraida Fund](https://github.com/ffund), [Mohamed Saeed](https://github.com/mohammed183)
