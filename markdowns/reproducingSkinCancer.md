@@ -1,18 +1,3 @@
----
-title: "Re-SkinCancerClassification"
-author: "Kyrillos Ishak"
-date: "`r Sys.Date()`"
-output: 
-  html_notebook:
-    pandoc_args: [
-      "--number-offset=1,0"
-      ]
-    fig_caption: true
-    number_sections: yes
-    toc: yes
-    toc_depth: 3
----
-
 
 :::{.cell .markdown}
 # Skin Cancer Classification using Inception Network and Transfer Learning

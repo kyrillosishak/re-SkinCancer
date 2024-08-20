@@ -1,17 +1,3 @@
----
-title: "Fixing data leakage issue in HAM_10000"
-author: "Kyrillos Ishak"
-date: "`r Sys.Date()`"
-output: 
-  html_notebook:
-    pandoc_args: [
-      "--number-offset=1,0"
-      ]
-    fig_caption: true
-    number_sections: yes
-    toc: yes
-    toc_depth: 3
----
 
 :::{.cell .markdown}
 
