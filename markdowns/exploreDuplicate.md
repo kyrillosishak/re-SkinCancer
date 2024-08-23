@@ -1,17 +1,3 @@
----
-title: "ToyExample"
-author: "Kyrillos Ishak"
-date: "`r Sys.Date()`"
-output: 
-  html_notebook:
-    pandoc_args: [
-      "--number-offset=1,0"
-      ]
-    fig_caption: true
-    number_sections: yes
-    toc: yes
-    toc_depth: 3
----
 
 ::: {.cell .markdown}
 
@@ -19,7 +5,10 @@ output:
 :::
 
 ::: {.cell .markdown}
-## **1. Introduction**
+## Introduction
+:::
+
+::: {.cell .markdown}
 
 Machine learning pipelines, like any code, are susceptible to errors. One such error, data leakage between training and testing data, can inflate a model's apparent accuracy during evaluation. This can lead to deploying poor-performing models in production. Leakage often occurs unintentionally due to poor practices, and detecting it manually can be difficult. While encountering duplicate data in training and testing sets might seem like an obvious oversight, it's surprisingly common [1].
 
@@ -227,13 +216,17 @@ plt.show()
 :::
 
 :::{.cell .markdown}
-## **2. A toy example with  synthetic data  to illustrate duplicate data leakage**.
+## A toy example with  synthetic data  to illustrate duplicate data leakage.
 :::
 
 
 
 :::{.cell .markdown}
 ### Example with accidental overlap between training and test set
+
+:::
+
+::: {.cell .markdown}
 
 Illustration of the example: Here we demonstrate wrong data preprocessing that causes duplicate data leakage, which can bias the evaluation of our model.
 
@@ -479,7 +472,7 @@ final_model = lr if lr_score > ridge_score else ridge
 
 :::{.cell .markdown}
 
-## **3. A real-world example using the CIFAR-100 dataset**
+## A real-world example using the CIFAR-100 dataset
 
 :::
 
@@ -846,7 +839,10 @@ The model was trained on images in the original test set, so it performs very we
 
 :::{.cell .markdown}
 
-## **4. How to measure duplicates?**
+## How to measure duplicates?
+:::
+
+::: {.cell .markdown}
 
 In this section, we will discuss how to find duplicates in a dataset based on the following types:
 
@@ -856,7 +852,16 @@ In this section, we will discuss how to find duplicates in a dataset based on th
 
 ---
 
-### **1. How to mitigate duplicates in Images:**
+:::
+
+:::{.cell .markdown}
+
+### How to mitigate duplicates in Images:
+
+:::
+
+::: {.cell .markdown}
+
 *Finding duplicate images can be challenging due to variations in size, format, and slight alterations. Here are some common methods:*
 
 * **Hashing** : Compute hash values for images and compare them. Techniques like MD5, SHA-1. This techniques can't detect Near-duplicate it can detect Exact-duplicates only.
@@ -983,7 +988,11 @@ In this section, we will discuss how to find duplicates in a dataset based on th
 
 --- 
 
-### **2. How to mitigate duplicates in Texts:**
+:::
+
+:::{.cell .markdown}
+
+### How to mitigate duplicates in Texts:
 
 *Duplicate detection in text data involves identifying identical or nearly identical pieces of text. In the context of image data, the paper “Deduplicating Training Data Makes Language Models Better" [4] describes two ways of detecting duplicates:*
   
@@ -1098,8 +1107,16 @@ print("MinHash Similarity between text1 and text3:", minhash_sim1_3)
 *As observed in this example, text1 has similarities with text2 but has 0 similarity with text3.*
 
 ---
-  
-### **3. How to mitigate duplicates in General Data:**
+
+:::
+
+:::{.cell .markdown}
+
+### How to mitigate duplicates in General Data:
+
+:::
+
+::: {.cell .markdown}
 
 *For general data, which can include structured data in tables, finding duplicates often involves comparing multiple columns.*
 
@@ -1112,7 +1129,11 @@ print("MinHash Similarity between text1 and text3:", minhash_sim1_3)
 
 :::{.cell .markdown}
 
-## **5. References** 
+## References
+
+:::
+
+::: {.cell .markdown}
 
 [1] [Leakage and the reproducibility crisis in machine learning-based science](https://arxiv.org/abs/2207.07048)
 

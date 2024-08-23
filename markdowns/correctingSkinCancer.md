@@ -2,7 +2,9 @@
 :::{.cell .markdown}
 
 # Mitigating Data Leakage in Skin Cancer Classification with Transfer Learning
+:::
 
+:::{.cell .markdown}
 `Skin Cancer Classification with Transfer Learning` paper that we are discussing uses HAM_10000 dataset.
 
 The HAM_10000 dataset is a widely used dataset for dermatological image classification, containing thousands of images of pigmented lesions. While it has been a valuable resource for training machine learning models, recent studies have highlighted significant issues with data leakage due to duplicate images within the dataset. This data leakage can lead to overly optimistic performance estimates and undermine the validity of research findings [2].
@@ -14,7 +16,7 @@ Our approach involves two main notebooks: the first reproduces the original pape
 ---
 **🔍 In this notebook, we will:**
 
-1. Identify Duplicates in `HAM_10000`4
+1. Identify Duplicates in `HAM_10000`
 2. Clean the Validation Dataset.
 3. Evaluate Model Performance on new clean validation data.
 4. Discuss Implications.
@@ -23,8 +25,11 @@ Our approach involves two main notebooks: the first reproduces the original pape
 
 :::{.cell .markdown}
 
-## **1. Identify Duplicates in HAM_10000**
+## Identify Duplicates in HAM_10000
 
+:::
+
+:::{.cell .markdown}
 **`HAM_10000` have severe flaw :**
 
 > A caveat of HAM10000, despite its rather large size, is that it contains multiple images of the
@@ -87,8 +92,11 @@ print("Label map: ",label_map)
 
 :::{.cell .markdown}
 
-## **2. Clean the data**
+## Clean the data
 
+:::
+
+:::{.cell .markdown}
 In `HAM_10000` there is problem in the data :
 
 It contains multiple images of the same lesion captured either from different viewing angles or at different magnification levels
@@ -301,7 +309,11 @@ After cleaning the data we should use the code in [Reproducing the original pape
 :::
 
 :::{.cell .markdown}
-## **3. Evaluate Model Performance on new clean validation data**
+## Evaluate Model Performance on new clean validation data
+
+:::
+
+:::{.cell .markdown}
 
 1. Downloading the model trained on the cleaned data and the model trained on duplicated data.
 2. Downloading the datasets that is used in every model.
@@ -480,7 +492,7 @@ As we see here, the model tested on images with near-duplicates in the training 
 
 :::{.cell .markdown}
 
-## **Refrences**
+## Refrences
 
 1. [Leakage and the Reproducibility Crisis in ML-based Science](https://arxiv.org/abs/2207.07048)
 

@@ -2,6 +2,9 @@
 :::{.cell .markdown}
 # Skin Cancer Classification using Inception Network and Transfer Learning
 
+:::
+
+:::{.cell .markdown}
 In this series of notebooks, we aim to reproduce the results of [Skin Cancer Classification using Inception Network and Transfer Learning](https://arxiv.org/pdf/2111.02402v1). The paper explores the application of advanced neural network architectures, specifically Inception Networks, in conjunction with transfer learning techniques for skin cancer classification. Our objective is to rigorously validate the findings of the paper, ensuring transparency and reproducibility in our approach. Additionally, we will investigate and mitigate potential sources of data leakage within the dataset. Data leakage can lead to overly optimistic results by inadvertently incorporating information from the validation or test sets into the training process. By identifying and addressing these issues, we aim to demonstrate how such leakage can impact model performance and interpretation of results.
 
 **🏆 Objectives of this notebooks:**
@@ -57,7 +60,11 @@ batch size of 10. A maximum patience of 15 epochs was set to the early stopping 
 
 :::{.cell .markdown}
 
-## **1.Data Loading and preprocessing**
+## Data Loading and preprocessing
+
+:::
+
+:::{.cell .markdown}
 
 `HAM10000`(Human Against Machine with 10000 images) contains 10,015 dermoscopic images of pigmented skin lesions collected from patients at two study sites in Australia and Austria, with their diagnoses confirmed by either histopathology, confocal microscopy, clinical follow-up visits, or expert consensus. The 7 disease labels in the dataset cover 95% of the lesions encountered in clinical practice. Because of these meritorious properties, `HAM10000` is a good candidate dataset for dermatological analysis. However the resulting `HAM10000` from serious flaws.
 
@@ -65,7 +72,11 @@ batch size of 10. A maximum patience of 15 epochs was set to the early stopping 
 
 :::{.cell .markdown}
 
-### 1.1 Downloading the data
+### Downloading the data
+
+:::
+
+:::{.cell .markdown}
 
 To download the data you should :
 
@@ -105,7 +116,7 @@ To download the data you should :
 
 :::{.cell .markdown}
 
-### 1.2 Exploring the data
+### Exploring the data
 
 :::
 
@@ -155,7 +166,7 @@ image
 
 :::{.cell .markdown}
 
-### 1.3 Data Augmentation and 
+### Data Augmentation 
 
 :::
 
@@ -182,6 +193,10 @@ import matplotlib.pyplot as plt
 :::{.cell .markdown}
 
 #### Augmentation
+
+:::
+
+:::{.cell .markdown}
 
 > Images are loaded and resized from 450×600 to 299×299
 
@@ -228,6 +243,9 @@ val_transform = transforms.Compose([
 
 #### Defining Dataset
 
+:::
+:::{.cell .markdown}
+
 If you are not familiar with PyTorch Dataset & Dataloader [visit](https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset).
 
 :::
@@ -265,6 +283,9 @@ class SkinLesionDataset(Dataset):
 :::{.cell .markdown}
 
 #### Splitting data & creating data loaders
+
+:::
+:::{.cell .markdown}
 
 > we split the dataset into a training and validation set with 80:20 ratio.
 
@@ -379,7 +400,10 @@ def process_train_val_loader(target_size, train_transform, val_transform):
 
 :::{.cell .markdown}
 
-## **2. Model creation and Transfer Learning** 
+## Model creation and Transfer Learning
+
+:::
+:::{.cell .markdown}
 
 >  The original Inception-ResNet-v2 architecture has a stem block consisting of the concatenation of multiple convolutional and pooling layers, while Inception-ResNet blocks (A, B and C) contain a set of convolutional filters with an average pooling layer. This structure has been extended with a final module consisting of a flattening step, two fully-connected layers of 64 units each, and the softmax classifier.
 
@@ -413,7 +437,7 @@ def process_train_val_loader(target_size, train_transform, val_transform):
 
 :::{.cell .markdown}
 
-### 2.1 Load original model
+### Load original model
 
 :::
 
@@ -455,7 +479,7 @@ we will remove the last layer only(the classifier)
 
 :::{.cell .markdown}
 
-### 2.2 Creating modified model
+### Creating modified model
 
 :::
 
@@ -518,7 +542,10 @@ summary(modified_model, input_size=(3, 299, 299))
 
 :::{.cell .markdown}
 
-## **3. Training**
+## Training
+
+:::
+:::{.cell .markdown}
 
 *The problem we counter while reproducing the paper that isn't specified how much they augmented the Train data.*
 
@@ -663,7 +690,7 @@ trained_model = train(num_epochs, train_loader, val_loader, modified_model, opti
 :::
 
 :::{.cell .markdown}
-## **4. Validation**
+## Validation
 :::
 
 :::{.cell .code}
@@ -728,7 +755,10 @@ plot_confusion_matrix(cm, class_names)
 :::
 
 :::{.cell .markdown}
-## **5. Comparing our results to paper's results**
+## Comparing our results to paper's results
+
+:::
+:::{.cell .markdown}
 
 <table>
   <tr>
