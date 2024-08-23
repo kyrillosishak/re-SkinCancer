@@ -43,6 +43,9 @@ of these lesion IDs (∼26.18%) contains 2 or more images: 1,423 lesions have 2 
 lesions have 3 images, 34 lesions have 4 images, 5 lesions have 5 images, and 6 lesions have 4
 images each.
 
+> The authors of the paper are using early stopping based on the validation set but do not utilize a separate holdout test set.
+
+
 <img src = "https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/Near-duplicate_HAM10000.png" height = 150>
 <img src = "https://raw.githubusercontent.com/kyrillosishak/re-SkinCancer/main/assets/Near-duplicate2_HAM10000.png" height = 150>
 
@@ -97,11 +100,15 @@ print("Label map: ",label_map)
 :::
 
 :::{.cell .markdown}
+## Clean the data
+
 In `HAM_10000` there is problem in the data :
 
-It contains multiple images of the same lesion captured either from different viewing angles or at different magnification levels
-   
-* To fix this issue we will put the images with the same lesion_id in the train set and the rest of them will be in the validation set
+1. It contains multiple images of the same lesion captured either from different viewing angles or at different magnification levels
+
+  -   To fix this issue we will put the images with the same lesion_id in the train set and the rest of them will be in the validation set
+
+2. In the paper has a problem of doing early stopping on validation set without using holdout Testset.
   
 :::
 
@@ -118,7 +125,7 @@ from tqdm import tqdm
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, random_split
 import matplotlib.pyplot as plt
 import pandas as pd
 import warnings
@@ -305,7 +312,74 @@ print("Size of validationset : " + str(len(val_dataset.image_list)))
 :::
 
 :::{.cell .markdown}
-After cleaning the data we should use the code in [Reproducing the original paper notebook](Markdowns/01-reproducingSkinCancer.md) to train the model on the clean data.
+
+After cleaning the data we should use the code in [Reproducing the original paper notebook](../markdowns/reproducingSkinCancer.md) to train the model on the clean data.
+
+:::
+
+:::{.cell .markdown}
+
+### Creating a Holdout Set for Early Stopping from the Training Dataset
+
+:::
+
+
+:::{.cell .markdown}
+
+To implement early stopping effectively, we need to create a separate validation set from the training dataset. This validation set will be used to evaluate the model's performance during training and decide when to stop training early to prevent overfitting.
+
+**Datasets Breakdown:**
+1. Training Dataset: This is the dataset used to train the model. To ensure that the model generalizes well to new data, we will split this dataset into two parts:
+   - New Training Data: The majority portion of the original training dataset that will continue to be used for training the model.
+
+   - Early Stopping Validation Data: A smaller portion of the original training dataset, set aside to validate the model's performance and implement early stopping.
+
+2. Validation Dataset: In the context of this setup, the original validation dataset will be repurposed as the test dataset. This test dataset will be used exclusively for evaluating the final model after all training and validation steps are complete.
+
+**Process Overview:**
+1. Split the Original Training Dataset:
+   - We divide the original training dataset into two parts: a new training set and an early stopping validation set.
+   - This split ensures that the early stopping process is based on validation data 
+
+2. Training and Early Stopping:
+   - Train the model using the new training set.
+   - Periodically evaluate the model's performance on the early stopping validation set during training.
+
+3. Final Model Evaluation:
+   
+    After training and early stopping, use the test dataset (original validation dataset) to assess the model's final performance. This test dataset serves as an independent evaluation set, providing a measure of how well the model is likely to perform on unseen data.
+
+:::
+
+:::{.cell .code}
+```python
+train_size = int(0.8 * len(train_dataset))  # 80% for training
+val_size = len(train_dataset) - train_size
+```
+:::
+
+:::{.cell .code}
+```python
+new_train_dataset, early_stopping_val_dataset = random_split(train_dataset, [train_size, val_size])
+```
+:::
+
+:::{.cell .code}
+```python
+# Create DataLoaders for these datasets
+new_train_loader = DataLoader(new_train_dataset, batch_size=10, shuffle=True)
+early_stopping_val_loader = DataLoader(early_stopping_val_dataset, batch_size=10, shuffle=False)
+```
+:::
+
+:::{.cell .markdown}
+
+We will re-train with the `train` function in [Reproducing the original paper notebook](../markdowns/reproducingSkinCancer.md) :
+
+```python
+trained_model = train(num_epochs, new_train_loader, early_stopping_val_loader, modified_model, optimizer, criterion, patience, early_stopping=True)
+```
+
 :::
 
 :::{.cell .markdown}
