@@ -566,6 +566,61 @@ As we see here, the model tested on images with near-duplicates in the training 
 
 :::{.cell .markdown}
 
+### Then we will see how the model perform after correctly implementing early stopping
+
+:::
+
+:::{.cell .code}
+```python
+!wget -q https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp5/new_val_loader.pt
+!wget -q https://huggingface.co/KyrillosIshak/Re-SkinCancer/resolve/main/Experiments/exp5/1000_clean_lesion_only.pt
+```
+:::
+
+:::{.cell .code}
+```python
+val_loader = torch.load('new_val_loader.pt')
+```
+:::
+
+:::{.cell .code}
+```python
+from timm import create_model
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = create_model('inception_resnet_v2', pretrained=True,num_classes=7)
+modified_model = ModifiedInceptionResNetV2(model, num_classes=7)
+
+modified_model.load_state_dict(torch.load('1000_clean_lesion_only.pt')['model'])
+
+modified_model.to(device)
+modified_model.eval()
+print("Loaded model successfully.")
+```
+:::
+
+:::{.cell .code}
+```python
+val_preds, val_labels = get_predictions_and_labels(modified_model, val_loader, device)
+accuracy = np.mean(val_preds == val_labels)*100
+print(f"Validation Accuracy of the duplicated set: {accuracy:.4f}")
+```
+:::
+
+:::{.cell .code}
+```python
+cm1 = confusion_matrix(val_labels, val_preds)
+plot_confusion_matrix(cm1, class_names)
+```
+:::
+
+:::{.cell .markdown}
+
+As we see after correcting the early stopping the accuracy dropped from 72% to 71%.
+
+:::
+
+:::{.cell .markdown}
+
 ## Refrences
 
 1. [Leakage and the Reproducibility Crisis in ML-based Science](https://arxiv.org/abs/2207.07048)
