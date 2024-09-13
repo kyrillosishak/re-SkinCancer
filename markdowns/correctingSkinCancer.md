@@ -487,15 +487,22 @@ early_stopping_val_loader = DataLoader(early_stopping_val_dataset, batch_size=10
 
 We will re-train with the `train` function in [Reproducing the original paper notebook](../markdowns/reproducingSkinCancer.md) :
 
-```python
-trained_model = train(num_epochs, new_train_loader, early_stopping_val_loader, modified_model, optimizer, criterion, patience, early_stopping=True)
-```
+:::
 
+:::{.cell .code}
+```python
+trained_model_no_dl = train(num_epochs, new_train_loader, early_stopping_val_loader, modified_model, optimizer, criterion, patience, early_stopping=True)
+```
 :::
 
 :::{.cell .markdown}
 ## Evaluate Model Performance on new clean validation data
 
+:::
+
+:::{.cell .markdown}
+
+You can use your own trained model or a pre-trained model. In this case, we will use a pre-trained model. We will download it from HF repo.
 :::
 
 :::{.cell .markdown}
