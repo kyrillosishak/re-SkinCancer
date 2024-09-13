@@ -507,6 +507,11 @@ You can use your own trained model or a pre-trained model. In this case, we will
 
 :::{.cell .markdown}
 
+### We will first show how the model perform after cleanning the data from duplicates
+:::
+
+:::{.cell .markdown}
+
 1. Downloading the model trained on the cleaned data and the model trained on duplicated data.
 2. Downloading the datasets that is used in every model.
 3. Evaluate each model
