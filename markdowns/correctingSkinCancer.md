@@ -19,7 +19,8 @@ Our approach involves two main notebooks: the first reproduces the original pape
 1. Identify Duplicates in `HAM_10000`
 2. Clean the Validation Dataset.
 3. Evaluate Model Performance on new clean validation data.
-4. Discuss Implications.
+4. Correcting early stopping approach.
+5. Discuss Implications.
 
 :::
 
@@ -315,6 +316,116 @@ print("Size of validationset : " + str(len(val_dataset.image_list)))
 
 After cleaning the data we should use the code in [Reproducing the original paper notebook](../markdowns/reproducingSkinCancer.md) to train the model on the clean data.
 
+:::
+
+:::{.cell .code}
+```python
+def train(num_epochs, train_loader, val_loader, model, optimizer, criterion, patience, early_stopping=True):
+    """Trains a deep learning model for image classification with early stopping.
+
+    This function trains a provided model (`model`) on a given dataset (`train_loader`) 
+    for a specified number of epochs (`num_epochs`). It also performs validation 
+    on a separate dataset (`val_loader`) to monitor performance and potentially apply 
+    early stopping to prevent overfitting.
+
+    Args:
+        num_epochs (int): The number of training epochs.
+        train_loader (torch.utils.data.DataLoader): The data loader for training data.
+        val_loader (torch.utils.data.DataLoader): The data loader for validation data.
+        model (torch.nn.Module): The deep learning model to be trained.
+        optimizer (torch.optim.Optimizer): The optimizer used for updating model weights.
+        criterion (torch.nn.Module): The loss function used for calculating training loss.
+        patience (int): The number of epochs to wait for improvement in validation loss 
+            before triggering early stopping (if enabled).
+        early_stopping (bool, optional): A flag to enable early stopping (default: True).
+
+    Returns:
+        torch.nn.Module: The trained model with the best weights found during validation.
+    """
+    # Track best validation loss and patience counter for early stopping
+    best_val_loss = float('inf')
+    patience_counter = 0
+    best_model_weights = copy.deepcopy(model.state_dict())
+
+    # Move the model to the specified device (CPU or GPU)
+    model.to(device)
+    
+    for epoch in tqdm(range(num_epochs)):
+        # Set model to training mode
+        model.train()
+
+        # Initialize running loss for the epoch
+        running_loss = 0.0
+
+        for images, labels in train_loader:
+            # Transfer images and labels to the device
+            images, labels = images.to(device), labels.to(device)
+            # Clear gradients from the previous iteration
+            optimizer.zero_grad()
+            # Forward pass: predict on the images
+            outputs = model(images)
+            # Calculate the loss based on predictions and labels
+            loss = criterion(outputs, labels)
+            # Backpropagate the loss to update model weights
+            loss.backward()
+            # Update model parameters using the optimizer
+            optimizer.step()
+            # Accumulate the training loss for the epoch
+            running_loss += loss.item() * images.size(0)
+
+        epoch_loss = running_loss / len(train_loader.dataset)
+
+        # Validation
+        model.eval()
+        val_loss = 0.0
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for images, labels in val_loader:
+                images, labels = images.to(device), labels.to(device)
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item() * images.size(0)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        val_loss /= len(val_loader.dataset)
+        val_accuracy = 100 * correct / total
+        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.2f}%")
+
+        # Early stopping
+        if early_stopping:
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                best_model_weights = copy.deepcopy(model.state_dict())
+                patience_counter = 0
+            else:
+                patience_counter += 1
+
+            if patience_counter >= patience:
+                print(f"Early stopping at epoch {epoch+1}")
+                break
+
+    # Load the best model weights
+    model.load_state_dict(best_model_weights)
+    model_name = f'{number}'
+    experiment_dir = '../experiments'
+    model_directory =  os.path.join(experiment_dir, f'{model_name}.pt')
+    torch.save({
+        'model': model.state_dict()
+    }, model_directory)
+
+    print(f"Model saved to checkpoint: {model_directory} as f'{model_name}.pt")
+    print("Training and validation completed.")
+    return model
+```
+:::
+
+:::{.cell .code}
+```python
+trained_model = train(num_epochs, train_loader, val_loader, modified_model, optimizer, criterion, patience, early_stopping=True)
+```
 :::
 
 :::{.cell .markdown}
