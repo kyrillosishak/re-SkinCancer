@@ -22,6 +22,7 @@ In this series of notebooks, we aim to reproduce the results of [Skin Cancer Cla
 
 
 **🔍 In this notebook, we will:**
+
 1. Identify the specific claims.
 2. Define specific experiments.
 3. Obtain the HAM_10000 dataset and perform data preprocessing.
