@@ -21,6 +21,7 @@ Machine learning pipelines, like any code, are susceptible to errors. One such e
 * Critically analyze the impact of duplicate data leakage on model performance.
 
 🔍 In this notebook, we will explore:
+
 1. A toy example with **synthetic data** to illustrate duplicate data leakage.
 2. A real-world example using the **CIFAR-100** dataset.
 
