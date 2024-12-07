@@ -8,7 +8,7 @@ In this paper, the authors use transfer learning on a pretrained convolutional n
 
 The first notebook in this sequence reproduces their result and achieves approximately 78.87% accuracy on the validation set:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kyrillosishak/re-SkinCancer/blob/main/notebooks/reproducingSkinCancer.ipynb) [Reproducing "Skin Cancer Classification Using Inception Network and Transfer Learning"](https://github.com/kyrillosishak/re-SkinCancer/blob/main/Notebooks/reproducingSkinCancer.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kyrillosishak/re-SkinCancer/blob/main/notebooks/reproducingSkinCancer.ipynb) [Reproducing "Skin Cancer Classification Using Inception Network and Transfer Learning"](https://github.com/kyrillosishak/re-SkinCancer/blob/main/notebooks/reproducingSkinCancer.ipynb)
 
 However, although this seems like a good result, we do not expect the model to achieve such a high accuracy when used to classify new lesions. The original result was trained and evaluated with *data leakage* - where there is contamination between the training set and validation or test set, in a way that will not be present when the model is used in production. Specifically, this example has a kind of data leakage where there are duplicate images of the same lesion in both the training set and the validation set that is used to evaluate model performance. This leads to an *overly optimistic evaluation* on the validation set - we were validating the model using an "easier" task than we had intended: classify lesions already seen in traning.
 
